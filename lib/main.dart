@@ -1,16 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:motion_tracking/functions/functions.dart';
 import 'package:motion_tracking/globals/theme.dart';
 import 'package:motion_tracking/views/gyroscope_readings/gyroscope_readings_view.dart';
 import 'package:motion_tracking/views/recording/recording_view.dart';
 import 'package:motion_tracking/views/accelerometer_readings/accelerometer_readings_view.dart';
 import 'navigator_card.dart';
-
-import 'package:vector_math/vector_math_64.dart' as vm;
-import 'dart:math' as m;
 
 void main() {
   runApp(const MyApp());
