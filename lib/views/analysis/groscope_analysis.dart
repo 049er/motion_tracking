@@ -150,7 +150,7 @@ class _GyroscopeAnalysisViewState extends State<GyroscopeAnalysisView> {
                   ..setEntry(3, 2, 0.001)
                   ..rotateX(motionEvent.orientation.x)
                   ..rotateY(motionEvent.orientation.y)
-                  ..rotateZ(-motionEvent.orientation.z),
+                  ..rotateZ(motionEvent.orientation.z),
                 child: const Center(
                   child: Card(
                     color: Colors.blue,

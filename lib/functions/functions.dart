@@ -1,5 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:math';
+
 import 'package:motion_tracking/classes/classes_export.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
@@ -193,20 +195,27 @@ List<RotatedUserAccelerometerEvent> rotateInterpolatedUserAccelerometerEvents({
       calculatedOrientation = calculatedOrientations[index];
     }
 
-    //Rotation Matrix.
-    vm.Matrix4 rotationMatrix = vm.Matrix4.identity()
-      ..rotateX(calculatedOrientation.orientation.x)
-      ..rotateY(calculatedOrientation.orientation.y)
-      ..rotateZ(calculatedOrientation.orientation.z);
+    // //Rotation Matrix.
+    // vm.Matrix4 rotationMatrix = vm.Matrix4.identity()
+    //   ..rotateX(calculatedOrientation.orientation.x)
+    //   ..rotateY(calculatedOrientation.orientation.y)
+    //   ..rotateZ(calculatedOrientation.orientation.z);
 
     //Acceleration Vector.
     vm.Vector3 accelerationVector =
         interpolatedUserAccelerometerEvent.acceleration.clone();
 
+    vm.Vector3 rotatedAcceleration = rotateVector(
+      vector: accelerationVector,
+      zRot: calculatedOrientation.orientation.z,
+      yRot: calculatedOrientation.orientation.y,
+      xRot: calculatedOrientation.orientation.x,
+    );
+
     //Create RotatedUserAccelerometerEvent.
     RotatedUserAccelerometerEvent rotatedUserAccelerometerEvent =
         RotatedUserAccelerometerEvent(
-      acceleration: rotationMatrix.transform3(accelerationVector),
+      acceleration: rotatedAcceleration,
       orientation: calculatedOrientation.orientation.clone(),
       timestamp: interpolatedUserAccelerometerEvent.timestamp,
     );
@@ -320,4 +329,29 @@ List<MotionEvent> findMotionEvents({
     ));
   }
   return motionEvents;
+}
+
+vm.Vector3 rotateVector({
+  required vm.Vector3 vector,
+  required double zRot,
+  required double yRot,
+  required double xRot,
+}) {
+  List<double> matrix = [
+    cos(zRot) * cos(yRot), // [1]
+    (cos(zRot) * sin(yRot) * sin(xRot)) - (sin(zRot) * cos(xRot)), // [2]
+    (cos(zRot) * sin(yRot) * cos(xRot)) + (sin(zRot) * sin(xRot)), // [3]
+    sin(zRot) * cos(yRot), // [4]
+    (sin(zRot) * sin(yRot) * sin(xRot)) + (cos(zRot) * cos(xRot)), // [5]
+    (sin(zRot) * sin(yRot) * cos(xRot)) - (cos(zRot) * sin(xRot)), // [6]
+    -sin(yRot), // [7]
+    cos(yRot) * sin(xRot), // [8]
+    cos(yRot) * (cos(xRot)), // [9]
+  ];
+
+  return vm.Vector3(
+    matrix[0] * vector.x + matrix[1] * vector.y + matrix[2] * vector.z,
+    matrix[3] * vector.x + matrix[4] * vector.y + matrix[5] * vector.z,
+    matrix[6] * vector.x + matrix[7] * vector.y + matrix[8] * vector.z,
+  );
 }
